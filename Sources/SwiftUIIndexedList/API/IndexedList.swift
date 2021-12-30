@@ -13,7 +13,7 @@ where SelectionValue : Hashable,
       SectionLabels.Element == SectionLabel,
       Content : View
 {
-    init(selection: Binding<SelectionValue?>?,
+    public init(selection: Binding<SelectionValue?>?,
          sectionLabels: SectionLabels,
          @ViewBuilder content: @escaping () -> Content)
     {
@@ -22,7 +22,7 @@ where SelectionValue : Hashable,
         self.selection = .single(value: selection)
     }
     
-    init(selection: Binding<Set<SelectionValue>>?,
+    public init(selection: Binding<Set<SelectionValue>>?,
          sectionLabels: SectionLabels,
          @ViewBuilder content: @escaping () -> Content)
     {

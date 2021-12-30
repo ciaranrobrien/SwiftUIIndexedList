@@ -12,7 +12,7 @@ where SectionLabels : RandomAccessCollection,
       SectionLabels.Element == SectionLabel,
       Content : View
 {
-    init(sectionLabels: SectionLabels, @ViewBuilder content: @escaping () -> Content) {
+    public init(sectionLabels: SectionLabels, @ViewBuilder content: @escaping () -> Content) {
         self.content = content
         self.sectionLabels = sectionLabels
     }
