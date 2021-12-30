@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct IndexedScrollView<SectionLabels, Content>: View
+public struct IndexedScrollView<SectionLabels, Content>: View
 where SectionLabels : RandomAccessCollection,
       SectionLabels.Element == SectionLabel,
       Content : View
@@ -17,7 +17,7 @@ where SectionLabels : RandomAccessCollection,
         self.sectionLabels = sectionLabels
     }
     
-    var body: some View {
+    public var body: some View {
         ScrollViewReader { scrollView in
             ScrollView(.vertical, showsIndicators: false) {
                 VStack(content: content)

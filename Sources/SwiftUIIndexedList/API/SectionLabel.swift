@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct SectionLabel: Equatable, Identifiable {
+public struct SectionLabel: Equatable, Identifiable {
     init<ID: Hashable>(id: ID, title: String, image name: String? = nil) {
         self.id = AnyHashable(id)
         self.image = name
@@ -37,7 +37,7 @@ struct SectionLabel: Equatable, Identifiable {
         self.titleKey = titleKey
     }
     
-    let id: AnyHashable
+    public let id: AnyHashable
     private let image: String?
     private let systemImage: String?
     private let title: String?

@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-extension IndexedList
+public extension IndexedList
 where SelectionValue == Never
 {
     init(sectionLabels: SectionLabels, @ViewBuilder content: @escaping () -> Content) {

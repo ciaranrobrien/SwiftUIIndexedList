@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct IndexedList<SelectionValue, SectionLabels, Content>: View
+public struct IndexedList<SelectionValue, SectionLabels, Content>: View
 where SelectionValue : Hashable,
       SectionLabels : RandomAccessCollection,
       SectionLabels.Element == SectionLabel,
@@ -31,7 +31,7 @@ where SelectionValue : Hashable,
         self.selection = .multiple(value: selection)
     }
     
-    var body: some View {
+    public var body: some View {
         ScrollViewReader { scrollView in
             Group {
                 switch selection {
