@@ -1,0 +1,6 @@
+public struct IndexedScrollView {
+    public private(set) var text = "Hello, World!"
+
+    public init() {
+    }
+}
