@@ -1,33 +1,37 @@
-//
-//  IndexedList.swift
-//  
-//
-//  Created by Ciaran O'Brien on 30/12/2021.
-//
+/**
+*  SwiftUIIndexedList
+*  Copyright (c) Ciaran O'Brien 2022
+*  MIT license, see LICENSE file for details
+*/
 
 import SwiftUI
 
-public struct IndexedList<SelectionValue, SectionLabels, Content>: View
+public struct IndexedList<SelectionValue, Indices, Content>: View
 where SelectionValue : Hashable,
-      SectionLabels : RandomAccessCollection,
-      SectionLabels.Element == SectionLabel,
+      Indices : Equatable,
+      Indices : RandomAccessCollection,
+      Indices.Element == Index,
       Content : View
 {
-    public init(selection: Binding<SelectionValue?>?,
-         sectionLabels: SectionLabels,
-         @ViewBuilder content: @escaping () -> Content)
+    public init(accessory: ScrollAccessory = .automatic,
+                indices: Indices,
+                selection: Binding<SelectionValue?>?,
+                @ViewBuilder content: @escaping () -> Content)
     {
+        self.accessory = accessory
         self.content = content
-        self.sectionLabels = sectionLabels
+        self.indices = indices
         self.selection = .single(value: selection)
     }
     
-    public init(selection: Binding<Set<SelectionValue>>?,
-         sectionLabels: SectionLabels,
-         @ViewBuilder content: @escaping () -> Content)
+    public init(accessory: ScrollAccessory = .automatic,
+                indices: Indices,
+                selection: Binding<Set<SelectionValue>>?,
+                @ViewBuilder content: @escaping () -> Content)
     {
+        self.accessory = accessory
         self.content = content
-        self.sectionLabels = sectionLabels
+        self.indices = indices
         self.selection = .multiple(value: selection)
     }
     
@@ -40,13 +44,15 @@ where SelectionValue : Hashable,
                 case let .multiple(value): List(selection: value, content: content)
                 }
             }
-            .background(UITableViewCustomizer())
-            .overlay(IndexBar(sectionLabels: sectionLabels, scrollView: scrollView), alignment: .trailing)
+            .background(UITableViewCustomizer(showsVerticalScrollIndicator: accessory.showsScrollIndicator(indices: indices)))
+            .overlay(IndexBar(accessory: accessory, scrollView: scrollView, indices: indices))
+            .environment(\.internalIndexBarInsets, accessory.showsIndexBar(indices: indices) ? indexBarInsets : nil)
         }
     }
     
+    internal var accessory: ScrollAccessory
     internal var content: () -> Content
-    internal var sectionLabels: SectionLabels
+    internal var indices: Indices
     internal var selection: Selection
     
     internal enum Selection {

@@ -1,65 +1,226 @@
-//
-//  IndexBar.swift
-//  
-//
-//  Created by Ciaran O'Brien on 30/12/2021.
-//
+/**
+*  SwiftUIIndexedList
+*  Copyright (c) Ciaran O'Brien 2022
+*  MIT license, see LICENSE file for details
+*/
 
 import SwiftUI
 
-internal struct IndexBar<SectionLabels>: View
-where SectionLabels : RandomAccessCollection,
-      SectionLabels.Element == SectionLabel
+internal struct IndexBar<Indices>: View
+where Indices : Equatable,
+      Indices : RandomAccessCollection,
+      Indices.Element == Index
 {
-    @State private var selectedLabel: SectionLabel? = nil
-    
-    var sectionLabels: SectionLabels
+    var accessory: ScrollAccessory
     var scrollView: ScrollViewProxy
+    var indices: Indices
     
     var body: some View {
-        VStack(spacing: 0) {
-            ForEach(sectionLabels) { sectionLabel in
-                sectionLabel.view()
+        GeometryReader { geometry in
+            if accessory.showsIndexBar(indices: indices) {
+                IndexBarLayout(accessory: accessory,
+                               frameHeight: geometry.size.height,
+                               scrollView: scrollView,
+                               indices: indices)
+                    .transition(.identity)
             }
-            .frame(width: 16, height: titleHeight)
-        }
-        .font(.system(size: 11).weight(.semibold))
-        .imageScale(.medium)
-        .foregroundColor(.accentColor)
-        .multilineTextAlignment(.center)
-        .frame(width: 32, alignment: .trailing)
-        .background(Color.red)
-        .contentShape(Rectangle())
-        .highPriorityGesture(dragGesture)
-        .accessibilityLargeContentView {
-            selectedLabel?.view()
         }
     }
+}
+
+
+internal var indexBarInsets: EdgeInsets {
+    EdgeInsets(top: 0, leading: 0, bottom: 0, trailing: labelSize.width)
+}
+
+
+private struct IndexBarLayout<Indices>: View
+where Indices : Equatable,
+      Indices : RandomAccessCollection,
+      Indices.Element == Index
+{
+    @GestureState private var currentIndex: Index? = nil
+    @State private var stackHeight: CGFloat = 0
+
+    var accessory: ScrollAccessory
+    var frameHeight: CGFloat
+    var scrollView: ScrollViewProxy
+    var indices: Indices
     
-    private let titleHeight: CGFloat = 14
-    private let selectionFeedback = UISelectionFeedbackGenerator()
+    var body: some View {
+        IndexStack(frameHeight: frameHeight,
+                   indices: indices,
+                   stackHeight: $stackHeight)
+            .frame(width: max(24, labelSize.width), alignment: .trailing)
+            .frame(maxHeight: .infinity)
+            .background(
+                Color.white
+                    .opacity(0)
+                    .contentShape(Rectangle())
+                    .ignoresSafeArea(edges: .trailing)
+            )
+            .background(IndexBarBackgroundView(stackHeight: stackHeight), alignment: .trailing)
+            .highPriorityGesture(dragGesture)
+            .onChange(of: currentIndex, perform: onCurrentIndex)
+            .frame(maxWidth: .infinity, alignment: .trailing)
+    }
     
     private var dragGesture: some Gesture {
         DragGesture(minimumDistance: 0)
-            .onChanged(dragChanged)
-            .onEnded(dragEnded)
+            .updating($currentIndex, body: dragUpdating)
     }
     
-    private func dragChanged(_ value: DragGesture.Value) {
-        let unboundOffset = Int(floor(value.location.y / titleHeight))
-        let offset = max(min(unboundOffset, sectionLabels.count - 1), 0)
-        let label = sectionLabels
+    private func dragUpdating(value: DragGesture.Value, currentIndex: inout Index?, transaction: inout Transaction) {
+        guard !indices.isEmpty else { return }
+        
+        let dragLocation = value.location.y + ((stackHeight - frameHeight) / 2)
+        let unboundOffset = Int(floor(dragLocation * CGFloat(indices.count) / stackHeight))
+        let offset = max(min(unboundOffset, indices.count - 1), 0)
+        
+        currentIndex = indices
             .enumerated()
             .first { $0.offset == offset }?
             .element
-        
-        if let label = label, selectedLabel?.id != label.id {
-            selectedLabel = label
-            scrollView.scrollTo(label.id, anchor: .topTrailing)
-            selectionFeedback.selectionChanged()
+    }
+    private func onCurrentIndex(_ currentIndex: Index?) {
+        if let currentIndex = currentIndex {
+            scrollView.scrollTo(currentIndex.id, anchor: .topTrailing)
+            selectionFeedbackGenerator.selectionChanged()
         }
     }
-    private func dragEnded(_ value: DragGesture.Value) {
-        selectedLabel = nil
+}
+
+
+private struct IndexStack<Indices>: View
+where Indices : Equatable,
+      Indices : RandomAccessCollection,
+      Indices.Element == Index
+{
+    var frameHeight: CGFloat
+    var indices: Indices
+    @Binding var stackHeight: CGFloat
+    
+    var body: some View {
+        VStack(spacing: 0) {
+            ForEach(reducedIndices, id: \.id) { index in
+                index.label()
+                    .frame(width: labelSize.width, height: labelSize.height)
+                    .transition(.identity)
+            }
+        }
+        .background(
+            GeometryReader { geometry in
+                Color.clear
+                    .onAppear { stackHeight = geometry.size.height }
+                    .onChange(of: geometry.size.height) { stackHeight = $0 }
+            }
+        )
+        .font(.system(size: 11).weight(.semibold))
+        .imageScale(.medium)
+        .labelStyle(.iconOnly)
+        .foregroundColor(.accentColor)
+        .multilineTextAlignment(.center)
+        .animation(nil, value: frameHeight)
+    }
+    
+    private var reducedIndices: [Index] {
+        var innerIndices = Array(indices)
+        let indexTarget = max(Int(floor((frameHeight - (stackPadding * 2)) / labelSize.height)), 2)
+        
+        if innerIndices.count <= indexTarget {
+            return innerIndices
+        }
+        
+        //Separate leading and trailing increased priority indices
+        var leadingIndices: [Index] = []
+        var trailingIndices: [Index] = []
+        
+        while innerIndices.first?.displayPriority == .increased {
+            leadingIndices.append(innerIndices.removeFirst())
+        }
+        
+        while innerIndices.last?.displayPriority == .increased {
+            trailingIndices.insert(innerIndices.removeLast(), at: 0)
+        }
+        
+        //Ignore priority if target is too low
+        if leadingIndices.count + trailingIndices.count + min(innerIndices.count, 3) > indexTarget {
+            leadingIndices = []
+            trailingIndices = []
+            innerIndices = Array(indices)
+        }
+        
+        if !innerIndices.isEmpty {
+            trailingIndices.insert(innerIndices.removeLast(), at: 0)
+        }
+        
+        if innerIndices.count > 1 {
+            //Set inner index target and ensure it's even
+            var innerIndexTarget = indexTarget - leadingIndices.count - trailingIndices.count
+            if innerIndexTarget > 2 && innerIndexTarget % 2 != 0 {
+                innerIndexTarget -= 1
+            }
+            
+            //Evenly remove indices to reach target
+            let skipLimit = Double(innerIndexTarget) / Double(innerIndices.count + 1 - innerIndexTarget)
+            var skipCount: Double = 0
+            
+            innerIndices = innerIndices
+                .reduce([]) { array, index in
+                    if skipCount > skipLimit {
+                        skipCount -= skipLimit
+                        return array
+                    } else {
+                        skipCount += 1
+                        return array + [index]
+                    }
+                }
+                .enumerated()
+                .map {
+                    $0.offset % 2 == 0
+                    ? $0.element
+                    : Index(separatorWith: $0.element.id)
+                }
+        }
+        
+        return leadingIndices + innerIndices + trailingIndices
+    }
+}
+
+
+private struct IndexBarBackgroundView: View {
+    @Environment(\.indexBarBackground) private var background
+
+    var stackHeight: CGFloat
+    
+    var body: some View {
+        background.view()
+            .frame(width: labelSize.width, height: height)
+    }
+    
+    private var height: CGFloat? {
+        switch background.contentMode {
+        case .fit: return stackHeight + (stackPadding * 2)
+        case .fill: return nil
+        }
+    }
+}
+
+
+private let selectionFeedbackGenerator = UISelectionFeedbackGenerator()
+
+
+private var labelSize: CGSize {
+    switch UIDevice.current.userInterfaceIdiom {
+    case .phone: return CGSize(width: 15, height: 14)
+    case .pad: return CGSize(width: 30, height: 24)
+    default: fatalError("Unsupported UserInterfaceIdiom \(UIDevice.current.userInterfaceIdiom).")
+    }
+}
+private var stackPadding: CGFloat {
+    switch UIDevice.current.userInterfaceIdiom {
+    case .phone: return 3
+    case .pad: return 6
+    default: fatalError("Unsupported UserInterfaceIdiom \(UIDevice.current.userInterfaceIdiom).")
     }
 }

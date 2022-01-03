@@ -1,9 +1,8 @@
-//
-//  UIView+Extensions.swift
-//  
-//
-//  Created by Ciaran O'Brien on 30/12/2021.
-//
+/**
+*  SwiftUIIndexedList
+*  Copyright (c) Ciaran O'Brien 2022
+*  MIT license, see LICENSE file for details
+*/
 
 import UIKit
 

@@ -1,32 +1,38 @@
-//
-//  IndexedScrollView.swift
-//
-//
-//  Created by Ciaran O'Brien on 30/12/2021.
-//
+/**
+*  SwiftUIIndexedList
+*  Copyright (c) Ciaran O'Brien 2022
+*  MIT license, see LICENSE file for details
+*/
 
 import SwiftUI
 
-public struct IndexedScrollView<SectionLabels, Content>: View
-where SectionLabels : RandomAccessCollection,
-      SectionLabels.Element == SectionLabel,
+public struct IndexedScrollView<Indices, Content>: View
+where Indices : Equatable,
+      Indices : RandomAccessCollection,
+      Indices.Element == Index,
       Content : View
 {
-    public init(sectionLabels: SectionLabels, @ViewBuilder content: @escaping () -> Content) {
+    public init(accessory: ScrollAccessory = .automatic,
+                indices: Indices,
+                @ViewBuilder content: @escaping () -> Content)
+    {
+        self.accessory = accessory
         self.content = content
-        self.sectionLabels = sectionLabels
+        self.indices = indices
     }
     
     public var body: some View {
         ScrollViewReader { scrollView in
-            ScrollView(.vertical, showsIndicators: false) {
+            ScrollView(.vertical, showsIndicators: accessory.showsScrollIndicator(indices: indices)) {
                 VStack(content: content)
                     .frame(maxWidth: .infinity)
             }
-            .overlay(IndexBar(sectionLabels: sectionLabels, scrollView: scrollView), alignment: .trailing)
+            .overlay(IndexBar(accessory: accessory, scrollView: scrollView, indices: indices))
+            .environment(\.internalIndexBarInsets, accessory.showsIndexBar(indices: indices) ? indexBarInsets : nil)
         }
     }
     
-    private var content: () -> Content
-    private var sectionLabels: SectionLabels
+    internal var accessory: ScrollAccessory
+    internal var content: () -> Content
+    internal var indices: Indices
 }
