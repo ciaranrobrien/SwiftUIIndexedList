@@ -12,16 +12,16 @@ where Indices : Equatable,
       Indices.Element == Index
 {
     var accessory: ScrollAccessory
-    var scrollView: ScrollViewProxy
     var indices: Indices
+    var scrollView: ScrollViewProxy
     
     var body: some View {
         GeometryReader { geometry in
             if accessory.showsIndexBar(indices: indices) {
                 IndexBarLayout(accessory: accessory,
                                frameHeight: geometry.size.height,
-                               scrollView: scrollView,
-                               indices: indices)
+                               indices: indices,
+                               scrollView: scrollView)
                     .transition(.identity)
             }
         }
@@ -44,8 +44,8 @@ where Indices : Equatable,
 
     var accessory: ScrollAccessory
     var frameHeight: CGFloat
-    var scrollView: ScrollViewProxy
     var indices: Indices
+    var scrollView: ScrollViewProxy
     
     var body: some View {
         IndexStack(frameHeight: frameHeight,

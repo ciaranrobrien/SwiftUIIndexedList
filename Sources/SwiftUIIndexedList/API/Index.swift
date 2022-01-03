@@ -8,8 +8,8 @@ import SwiftUI
 
 public struct Index: Equatable {
     public init<ID>(id: ID,
-             title: String,
-             displayPriority: DisplayPriority = .standard)
+                    title: String,
+                    displayPriority: DisplayPriority = .standard)
     where ID : Hashable
     {
         self.displayPriority = displayPriority
@@ -19,8 +19,8 @@ public struct Index: Equatable {
     }
     
     public init<ID>(id: ID,
-             image name: String,
-             displayPriority: DisplayPriority = .standard)
+                    image name: String,
+                    displayPriority: DisplayPriority = .standard)
     where ID : Hashable
     {
         self.displayPriority = displayPriority
@@ -30,8 +30,8 @@ public struct Index: Equatable {
     }
     
     public init<ID>(id: ID,
-             systemImage name: String,
-             displayPriority: DisplayPriority = .standard)
+                    systemImage name: String,
+                    displayPriority: DisplayPriority = .standard)
     where ID : Hashable
     {
         self.displayPriority = displayPriority

@@ -27,7 +27,7 @@ where Indices : Equatable,
                 VStack(content: content)
                     .frame(maxWidth: .infinity)
             }
-            .overlay(IndexBar(accessory: accessory, scrollView: scrollView, indices: indices))
+            .overlay(IndexBar(accessory: accessory, indices: indices, scrollView: scrollView))
             .environment(\.internalIndexBarInsets, accessory.showsIndexBar(indices: indices) ? indexBarInsets : nil)
         }
     }

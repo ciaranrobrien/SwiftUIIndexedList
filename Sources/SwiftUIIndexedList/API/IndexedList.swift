@@ -45,7 +45,7 @@ where SelectionValue : Hashable,
                 }
             }
             .background(UITableViewCustomizer(showsVerticalScrollIndicator: accessory.showsScrollIndicator(indices: indices)))
-            .overlay(IndexBar(accessory: accessory, scrollView: scrollView, indices: indices))
+            .overlay(IndexBar(accessory: accessory, indices: indices, scrollView: scrollView))
             .environment(\.internalIndexBarInsets, accessory.showsIndexBar(indices: indices) ? indexBarInsets : nil)
         }
     }
