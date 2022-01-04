@@ -25,9 +25,9 @@ IndexedList(data) { element in
 
 *struct* · A type that describes the appearance and behaviour of data in an index bar.
 * `contentID`: The identifier of the view to scroll to.
-* `displayPriority`: The display priority of the label. The system considers the display priority during the layout of a truncated index bar. No priority guarantees the label will be displayed.
+* `displayPriority`: The display priority of the label. The system may consider the display priority during the layout of a truncated index bar.
     * `standard`: The standard display priority.
-    * `increased`: The increased display priority.
+    * `increased`: The increased display priority. An increased priority does not guarantee the label will be displayed.
 * `title`, `image` and `systemImage`: The parameters used to construct the label.
 
 ### Indexable
