@@ -11,7 +11,6 @@ public extension View {
                                      @ViewBuilder content: @escaping () -> Content) -> some View
     where Content : View
     {
-        environment(\.indexBarBackground, IndexBarBackground(contentMode: contentMode,
-                                                             view: { AnyView(content()) }))
+        environment(\.indexBarBackground, IndexBarBackground(contentMode: contentMode, view: { AnyView(content()) }))
     }
 }

@@ -32,12 +32,6 @@ where SelectionValue : Hashable,
     private var content: () -> Content
     private var indices: Indices
     private var selection: Selection
-    
-    private enum Selection {
-        case none
-        case single(value: Binding<SelectionValue?>?)
-        case multiple(value: Binding<Set<SelectionValue>>?)
-    }
 }
 
 
@@ -306,5 +300,14 @@ where SelectionValue == Never,
         self.content = { ForEach(data, content: content) }
         self.indices = data.wrappedValue.compactMap(\.index)
         self.selection = .none
+    }
+}
+
+
+private extension IndexedList {
+    enum Selection {
+        case none
+        case single(value: Binding<SelectionValue?>?)
+        case multiple(value: Binding<Set<SelectionValue>>?)
     }
 }

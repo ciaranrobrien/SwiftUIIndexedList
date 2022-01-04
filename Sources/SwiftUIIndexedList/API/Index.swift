@@ -7,16 +7,19 @@
 import SwiftUI
 
 public struct Index: Equatable {
-    public enum DisplayPriority: Equatable, Hashable {
-        case standard
-        case increased
-    }
-    
     internal let contentID: AnyHashable
     internal let displayPriority: DisplayPriority
     
     private let icon: Image?
     private let title: Text?
+}
+
+
+public extension Index {
+    enum DisplayPriority: Equatable, Hashable {
+        case standard
+        case increased
+    }
 }
 
 
