@@ -40,7 +40,7 @@ IndexedList(data) { element in
 *view* · A container that presents rows of data arranged in a single column.
 
 Construct the `indices` and the list `content` manually, or provide `data` that conforms to `Indexable` along with `ElementContent` for each element.
-* `accessory`: The scroll interaction accessory to display on top of the list.
+* `accessory`: The scroll accessory to display on top of the list.
 * `selection`: A binding that identifies selected rows.
 
 ### IndexedScrollView
@@ -48,7 +48,7 @@ Construct the `indices` and the list `content` manually, or provide `data` that 
 *view* · A scrollable view.
 
 Construct the `indices` and the scroll view's `content` manually, or provide `data` that conforms to `Indexable` along with `ElementContent` for each element.
-* `accessory`: The scroll interaction accessory to display on top of the scroll view.
+* `accessory`: The scroll accessory to display on top of the scroll view.
 
 ### ScrollAccessory
 
