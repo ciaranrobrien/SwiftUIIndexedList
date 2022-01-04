@@ -18,10 +18,9 @@ where Indices : Equatable,
     var body: some View {
         GeometryReader { geometry in
             if accessory.showsIndexBar(indices: indices) {
-                IndexBarLayout(accessory: accessory,
-                               frameHeight: geometry.size.height,
-                               indices: indices,
-                               scrollView: scrollView)
+                IndexReducer(frameHeight: geometry.size.height,
+                             indices: indices,
+                             scrollView: scrollView)
                     .transition(.identity)
             }
         }
@@ -34,93 +33,20 @@ internal var indexBarInsets: EdgeInsets {
 }
 
 
-private struct IndexBarLayout<Indices>: View
+private struct IndexReducer<Indices>: View
 where Indices : Equatable,
       Indices : RandomAccessCollection,
       Indices.Element == Index
 {
-    @GestureState private var currentIndex: Index? = nil
-    @State private var stackHeight: CGFloat = 0
-
-    var accessory: ScrollAccessory
     var frameHeight: CGFloat
     var indices: Indices
     var scrollView: ScrollViewProxy
     
     var body: some View {
-        IndexStack(frameHeight: frameHeight,
-                   indices: indices,
-                   stackHeight: $stackHeight)
-            .frame(width: max(24, labelSize.width), alignment: .trailing)
-            .frame(maxHeight: .infinity)
-            .background(
-                Color.white
-                    .opacity(0)
-                    .contentShape(Rectangle())
-                    .ignoresSafeArea(edges: .trailing)
-            )
-            .background(IndexBarBackgroundView(stackHeight: stackHeight), alignment: .trailing)
-            .highPriorityGesture(dragGesture)
-            .onChange(of: currentIndex, perform: onCurrentIndex)
-            .frame(maxWidth: .infinity, alignment: .trailing)
-    }
-    
-    private var dragGesture: some Gesture {
-        DragGesture(minimumDistance: 0)
-            .updating($currentIndex, body: dragUpdating)
-    }
-    
-    private func dragUpdating(value: DragGesture.Value, currentIndex: inout Index?, transaction: inout Transaction) {
-        guard !indices.isEmpty else { return }
-        
-        let dragLocation = value.location.y + ((stackHeight - frameHeight) / 2)
-        let unboundOffset = Int(floor(dragLocation * CGFloat(indices.count) / stackHeight))
-        let offset = max(min(unboundOffset, indices.count - 1), 0)
-        
-        currentIndex = indices
-            .enumerated()
-            .first { $0.offset == offset }?
-            .element
-    }
-    private func onCurrentIndex(_ currentIndex: Index?) {
-        if let currentIndex = currentIndex {
-            scrollView.scrollTo(currentIndex.id, anchor: .topTrailing)
-            selectionFeedbackGenerator.selectionChanged()
-        }
-    }
-}
-
-
-private struct IndexStack<Indices>: View
-where Indices : Equatable,
-      Indices : RandomAccessCollection,
-      Indices.Element == Index
-{
-    var frameHeight: CGFloat
-    var indices: Indices
-    @Binding var stackHeight: CGFloat
-    
-    var body: some View {
-        VStack(spacing: 0) {
-            ForEach(reducedIndices, id: \.id) { index in
-                index.label()
-                    .frame(width: labelSize.width, height: labelSize.height)
-                    .transition(.identity)
-            }
-        }
-        .background(
-            GeometryReader { geometry in
-                Color.clear
-                    .onAppear { stackHeight = geometry.size.height }
-                    .onChange(of: geometry.size.height) { stackHeight = $0 }
-            }
-        )
-        .font(.system(size: 11).weight(.semibold))
-        .imageScale(.medium)
-        .labelStyle(.iconOnly)
-        .foregroundColor(.accentColor)
-        .multilineTextAlignment(.center)
-        .animation(nil, value: frameHeight)
+        IndexLayout(frameHeight: frameHeight,
+                    indices: indices,
+                    reducedIndices: reducedIndices,
+                    scrollView: scrollView)
     }
     
     private var reducedIndices: [Index] {
@@ -179,11 +105,90 @@ where Indices : Equatable,
                 .map {
                     $0.offset % 2 == 0
                     ? $0.element
-                    : Index(separatorWith: $0.element.id)
+                    : Index(separatorWith: $0.element.contentID)
                 }
         }
         
         return leadingIndices + innerIndices + trailingIndices
+    }
+}
+
+
+private struct IndexLayout<Indices>: View
+where Indices : Equatable,
+      Indices : RandomAccessCollection,
+      Indices.Element == Index
+{
+    @GestureState private var currentIndex: Index? = nil
+    
+    var frameHeight: CGFloat
+    var indices: Indices
+    var reducedIndices: [Index]
+    var scrollView: ScrollViewProxy
+    
+    var body: some View {
+        IndexStack(frameHeight: frameHeight, reducedIndices: reducedIndices)
+            .frame(width: max(24, labelSize.width), alignment: .trailing)
+            .frame(maxHeight: .infinity)
+            .background(
+                Color.white
+                    .opacity(0)
+                    .contentShape(Rectangle())
+                    .ignoresSafeArea(edges: .trailing)
+            )
+            .background(IndexBarBackgroundView(stackHeight: stackHeight), alignment: .trailing)
+            .highPriorityGesture(dragGesture)
+            .onChange(of: currentIndex, perform: onCurrentIndex)
+            .frame(maxWidth: .infinity, alignment: .trailing)
+    }
+    
+    private var dragGesture: some Gesture {
+        DragGesture(minimumDistance: 0)
+            .updating($currentIndex, body: dragUpdating)
+    }
+    private var stackHeight: CGFloat {
+        CGFloat(reducedIndices.count) * labelSize.height
+    }
+    
+    private func dragUpdating(value: DragGesture.Value, currentIndex: inout Index?, transaction: inout Transaction) {
+        guard !indices.isEmpty else { return }
+        
+        let dragLocation = value.location.y + ((stackHeight - frameHeight) / 2)
+        let unboundOffset = Int(floor(dragLocation * CGFloat(indices.count) / stackHeight))
+        let offset = max(min(unboundOffset, indices.count - 1), 0)
+        
+        currentIndex = indices
+            .enumerated()
+            .first { $0.offset == offset }?
+            .element
+    }
+    private func onCurrentIndex(_ currentIndex: Index?) {
+        if let currentIndex = currentIndex {
+            scrollView.scrollTo(currentIndex.contentID, anchor: .topTrailing)
+            selectionFeedbackGenerator.selectionChanged()
+        }
+    }
+}
+
+
+private struct IndexStack: View {
+    var frameHeight: CGFloat
+    var reducedIndices: [Index]
+    
+    var body: some View {
+        VStack(spacing: 0) {
+            ForEach(reducedIndices, id: \.contentID) { index in
+                index.label()
+                    .frame(width: labelSize.width, height: labelSize.height)
+                    .transition(.identity)
+            }
+        }
+        .font(.system(size: 11).weight(.semibold))
+        .imageScale(.medium)
+        .labelStyle(.iconOnly)
+        .foregroundColor(.accentColor)
+        .multilineTextAlignment(.center)
+        .animation(nil, value: frameHeight)
     }
 }
 

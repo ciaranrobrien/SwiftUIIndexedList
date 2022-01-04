@@ -7,65 +7,109 @@
 import SwiftUI
 
 public struct Index: Equatable {
-    public init<ID>(id: ID,
-                    title: String,
-                    displayPriority: DisplayPriority = .standard)
-    where ID : Hashable
-    {
-        self.displayPriority = displayPriority
-        self.id = AnyHashable(id)
-        self.image = nil
-        self.text = Text(title)
-    }
-    
-    public init<ID>(id: ID,
-                    image name: String,
-                    displayPriority: DisplayPriority = .standard)
-    where ID : Hashable
-    {
-        self.displayPriority = displayPriority
-        self.id = AnyHashable(id)
-        self.image = Image(name)
-        self.text = nil
-    }
-    
-    public init<ID>(id: ID,
-                    systemImage name: String,
-                    displayPriority: DisplayPriority = .standard)
-    where ID : Hashable
-    {
-        self.displayPriority = displayPriority
-        self.id = AnyHashable(id)
-        self.image = Image(systemName: name)
-        self.text = nil
-    }
-    
     public enum DisplayPriority: Equatable, Hashable {
         case standard
         case increased
     }
     
+    internal let contentID: AnyHashable
     internal let displayPriority: DisplayPriority
-    internal let id: AnyHashable
     
-    private let image: Image?
-    private let text: Text?
+    private let icon: Image?
+    private let title: Text?
+}
+
+
+public extension Index {
+    init<Title, ContentID>(_ title: Title,
+                           image name: String? = nil,
+                           displayPriority: DisplayPriority = .standard,
+                           contentID: ContentID)
+    where
+    Title : StringProtocol,
+    ContentID : Hashable
+    {
+        self.contentID = AnyHashable(contentID)
+        self.displayPriority = displayPriority
+        self.title = Text(title)
+        
+        if let name = name {
+            self.icon = Image(name)
+        } else {
+            self.icon = nil
+        }
+    }
+    
+    init<ContentID>(_ title: LocalizedStringKey,
+                    image name: String? = nil,
+                    displayPriority: DisplayPriority = .standard,
+                    contentID: ContentID)
+    where ContentID : Hashable
+    {
+        self.contentID = AnyHashable(contentID)
+        self.displayPriority = displayPriority
+        self.title = Text(title)
+        
+        if let name = name {
+            self.icon = Image(name)
+        } else {
+            self.icon = nil
+        }
+    }
+    
+    init<Title, ContentID>(_ title: Title,
+                           systemImage name: String?,
+                           displayPriority: DisplayPriority = .standard,
+                           contentID: ContentID)
+    where
+    Title : StringProtocol,
+    ContentID : Hashable
+    {
+        self.contentID = AnyHashable(contentID)
+        self.displayPriority = displayPriority
+        self.title = Text(title)
+        
+        if let name = name {
+            self.icon = Image(systemName: name)
+        } else {
+            self.icon = nil
+        }
+    }
+    
+    init<ContentID>(_ title: LocalizedStringKey,
+                    systemImage name: String?,
+                    displayPriority: DisplayPriority = .standard,
+                    contentID: ContentID)
+    where ContentID : Hashable
+    {
+        self.contentID = AnyHashable(contentID)
+        self.displayPriority = displayPriority
+        self.title = Text(title)
+        
+        if let name = name {
+            self.icon = Image(systemName: name)
+        } else {
+            self.icon = nil
+        }
+    }
 }
 
 
 internal extension Index {
-    init(separatorWith id: AnyHashable) {
+    init(separatorWith contentID: AnyHashable) {
+        self.contentID = contentID
         self.displayPriority = .standard
-        self.id = id
-        self.image = nil
-        self.text = nil
+        self.icon = nil
+        self.title = nil
     }
     
     @ViewBuilder func label() -> some View {
-        if let image = image {
-            image
-        } else if let text = text {
-            text
+        if let title = title {
+            if let icon = icon {
+                Label { title } icon: { icon }
+            } else {
+                title
+            }
         } else {
             Circle()
                 .frame(width: 6, height: 6)

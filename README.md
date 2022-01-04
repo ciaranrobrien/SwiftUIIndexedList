@@ -2,7 +2,7 @@
 
 Add an index bar to a SwiftUI `List` or `ScrollView`.
 
-## Quick Start
+## Getting Started
 
 Conform your data source to `Indexable` and `Identifiable`. Then replace `List` with `IndexedList`, or `ScrollView` with `IndexedScrollView`:
 
