@@ -1,4 +1,4 @@
-# SwiftUIIndexedList
+# SwiftUI Indexed List
 
 Add an index bar to a SwiftUI `List` or `ScrollView`.
 
