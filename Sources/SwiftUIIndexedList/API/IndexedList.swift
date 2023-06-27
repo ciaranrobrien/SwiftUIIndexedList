@@ -22,7 +22,7 @@ where SelectionValue : Hashable,
                 case let .multiple(value): List(selection: value, content: content)
                 }
             }
-            .background(UITableViewCustomizer(showsVerticalScrollIndicator: accessory.showsScrollIndicator(indices: indices)))
+            .verticalScrollIndicatorVisible(accessory.showsScrollIndicator(indices: indices))
             .overlay(IndexBar(accessory: accessory, indices: indices, scrollView: scrollView))
             .environment(\.internalIndexBarInsets, accessory.showsIndexBar(indices: indices) ? indexBarInsets : nil)
         }

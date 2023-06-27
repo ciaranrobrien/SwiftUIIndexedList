@@ -7,13 +7,13 @@
 import UIKit
 
 internal extension UIView {
-    func firstUITableView() -> UITableView? {
+    func firstUIScrollView() -> UIScrollView? {
         for subview in subviews {
-            if let tableView = subview as? UITableView {
-                return tableView
+            if let scrollView = subview as? UIScrollView {
+                return scrollView
             }
-            else if let tableView = subview.firstUITableView() {
-                return tableView
+            else if let scrollView = subview.firstUIScrollView() {
+                return scrollView
             }
         }
         

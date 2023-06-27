@@ -163,8 +163,11 @@ where Indices : Equatable,
             .element
     }
     private func onCurrentIndex(_ currentIndex: Index?) {
-        if let currentIndex = currentIndex {
-            scrollView.scrollTo(currentIndex.contentID, anchor: .topTrailing)
+        if let currentIndex {
+            scrollView.scrollTo(
+                currentIndex.contentID,
+                anchor: currentIndex == indices.first ? .bottomTrailing : .topTrailing
+            )
             selectionFeedbackGenerator.selectionChanged()
         }
     }

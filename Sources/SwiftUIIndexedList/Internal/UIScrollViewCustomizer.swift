@@ -6,7 +6,7 @@
 
 import SwiftUI
 
-internal struct UITableViewCustomizer: UIViewRepresentable {
+internal struct UIScrollViewCustomizer: UIViewRepresentable {
     var showsVerticalScrollIndicator: Bool
     
     func makeUIView(context: Context) -> UIView {
@@ -19,10 +19,10 @@ internal struct UITableViewCustomizer: UIViewRepresentable {
 
     func updateUIView(_ view: UIView, context: Context) {
         DispatchQueue.main.async {
-            guard let tableView = view.superview?.superview?.firstUITableView()
+            guard let scrollView = view.superview?.superview?.firstUIScrollView()
             else { return }
             
-            tableView.showsVerticalScrollIndicator = showsVerticalScrollIndicator
+            scrollView.showsVerticalScrollIndicator = showsVerticalScrollIndicator
         }
     }
 }
