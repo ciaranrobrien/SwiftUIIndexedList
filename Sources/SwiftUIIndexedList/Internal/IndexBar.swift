@@ -98,7 +98,7 @@ where Indices : Equatable,
                         return array
                     } else {
                         skipCount += 1
-                        return array + [index]
+                        return array + CollectionOfOne(index)
                     }
                 }
                 .enumerated()
