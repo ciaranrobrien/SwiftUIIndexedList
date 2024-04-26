@@ -19,6 +19,8 @@ IndexedList(data) { element in
 }
 ```
 
+See [Examples](/Sources/SwiftUIIndexedList/Examples/) for more.
+
 ## Overview
 
 ### Index
