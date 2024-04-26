@@ -1,6 +1,6 @@
 /**
 *  SwiftUIIndexedList
-*  Copyright (c) Ciaran O'Brien 2022
+*  Copyright (c) Ciaran O'Brien 2024
 *  MIT license, see LICENSE file for details
 */
 
@@ -15,23 +15,17 @@ where SelectionValue : Hashable,
 {
     public var body: some View {
         ScrollViewReader { scrollView in
-            Group {
-                switch selection {
-                case .none: List(content: content)
-                case let .single(value): List(selection: value, content: content)
-                case let .multiple(value): List(selection: value, content: content)
-                }
-            }
-            .verticalScrollIndicatorVisible(accessory.showsScrollIndicator(indices: indices))
-            .overlay(IndexBar(accessory: accessory, indices: indices, scrollView: scrollView))
-            .environment(\.internalIndexBarInsets, accessory.showsIndexBar(indices: indices) ? indexBarInsets : nil)
+            listContent()
+                .verticalScrollIndicatorVisible(accessory.showsScrollIndicator(indices: indices))
+                .overlay(IndexBar(accessory: accessory, indices: indices, scrollView: scrollView))
+                .environment(\.internalIndexBarInsets, accessory.showsIndexBar(indices: indices) ? indexBarInsets : nil)
         }
     }
     
-    private var accessory: ScrollAccessory
-    private var content: () -> Content
-    private var indices: Indices
-    private var selection: Selection
+    internal var accessory: ScrollAccessory
+    internal var content: () -> Content
+    internal var indices: Indices
+    internal var selection: Selection
 }
 
 
@@ -63,11 +57,12 @@ public extension IndexedList {
 public extension IndexedList
 where Indices == [Index]
 {
-    init<Data, ID, ElementContent>(_ data: Data,
-                                   id: KeyPath<Data.Element, ID>,
-                                   accessory: ScrollAccessory = .automatic,
-                                   selection: Binding<SelectionValue?>?,
-                                   @ViewBuilder content: @escaping (Data.Element) -> ElementContent)
+    init<Data, ID, ElementContent>(
+        _ data: Data,
+        id: KeyPath<Data.Element, ID>,
+        accessory: ScrollAccessory = .automatic,
+        selection: Binding<SelectionValue?>?,
+        @ViewBuilder content: @escaping (Data.Element) -> ElementContent)
     where
     Data : RandomAccessCollection,
     Data.Element : Indexable,
@@ -81,11 +76,12 @@ where Indices == [Index]
         self.selection = .single(value: selection)
     }
     
-    init<Data, ID, ElementContent>(_ data: Data,
-                                   id: KeyPath<Data.Element, ID>,
-                                   accessory: ScrollAccessory = .automatic,
-                                   selection: Binding<Set<SelectionValue>>?,
-                                   @ViewBuilder content: @escaping (Data.Element) -> ElementContent)
+    init<Data, ID, ElementContent>(
+        _ data: Data,
+        id: KeyPath<Data.Element, ID>,
+        accessory: ScrollAccessory = .automatic,
+        selection: Binding<Set<SelectionValue>>?,
+        @ViewBuilder content: @escaping (Data.Element) -> ElementContent)
     where
     Data : RandomAccessCollection,
     Data.Element : Indexable,
@@ -99,10 +95,11 @@ where Indices == [Index]
         self.selection = .multiple(value: selection)
     }
     
-    init<Data, ElementContent>(_ data: Data,
-                               accessory: ScrollAccessory = .automatic,
-                               selection: Binding<SelectionValue?>?,
-                               @ViewBuilder content: @escaping (Data.Element) -> ElementContent)
+    init<Data, ElementContent>(
+        _ data: Data,
+        accessory: ScrollAccessory = .automatic,
+        selection: Binding<SelectionValue?>?,
+        @ViewBuilder content: @escaping (Data.Element) -> ElementContent)
     where
     Data : RandomAccessCollection,
     Data.Element : Identifiable,
@@ -116,10 +113,11 @@ where Indices == [Index]
         self.selection = .single(value: selection)
     }
     
-    init<Data, ElementContent>(_ data: Data,
-                               accessory: ScrollAccessory = .automatic,
-                               selection: Binding<Set<SelectionValue>>?,
-                               @ViewBuilder content: @escaping (Data.Element) -> ElementContent)
+    init<Data, ElementContent>(
+        _ data: Data,
+        accessory: ScrollAccessory = .automatic,
+        selection: Binding<Set<SelectionValue>>?,
+        @ViewBuilder content: @escaping (Data.Element) -> ElementContent)
     where
     Data : RandomAccessCollection,
     Data.Element : Identifiable,
@@ -133,11 +131,12 @@ where Indices == [Index]
         self.selection = .multiple(value: selection)
     }
     
-    init<Data, ID, ElementContent>(_ data: Binding<Data>,
-                                   id: KeyPath<Data.Element, ID>,
-                                   accessory: ScrollAccessory = .automatic,
-                                   selection: Binding<SelectionValue?>?,
-                                   @ViewBuilder content: @escaping (Binding<Data.Element>) -> ElementContent)
+    init<Data, ID, ElementContent>(
+        _ data: Binding<Data>,
+        id: KeyPath<Data.Element, ID>,
+        accessory: ScrollAccessory = .automatic,
+        selection: Binding<SelectionValue?>?,
+        @ViewBuilder content: @escaping (Binding<Data.Element>) -> ElementContent)
     where
     Data : MutableCollection,
     Data : RandomAccessCollection,
@@ -153,11 +152,12 @@ where Indices == [Index]
         self.selection = .single(value: selection)
     }
     
-    init<Data, ID, ElementContent>(_ data: Binding<Data>,
-                                   id: KeyPath<Data.Element, ID>,
-                                   accessory: ScrollAccessory = .automatic,
-                                   selection: Binding<Set<SelectionValue>>?,
-                                   @ViewBuilder content: @escaping (Binding<Data.Element>) -> ElementContent)
+    init<Data, ID, ElementContent>(
+        _ data: Binding<Data>,
+        id: KeyPath<Data.Element, ID>,
+        accessory: ScrollAccessory = .automatic,
+        selection: Binding<Set<SelectionValue>>?,
+        @ViewBuilder content: @escaping (Binding<Data.Element>) -> ElementContent)
     where
     Data : MutableCollection,
     Data : RandomAccessCollection,
@@ -173,10 +173,11 @@ where Indices == [Index]
         self.selection = .multiple(value: selection)
     }
     
-    init<Data, ElementContent>(_ data: Binding<Data>,
-                               accessory: ScrollAccessory = .automatic,
-                               selection: Binding<SelectionValue?>?,
-                               @ViewBuilder content: @escaping (Binding<Data.Element>) -> ElementContent)
+    init<Data, ElementContent>(
+        _ data: Binding<Data>,
+        accessory: ScrollAccessory = .automatic,
+        selection: Binding<SelectionValue?>?,
+        @ViewBuilder content: @escaping (Binding<Data.Element>) -> ElementContent)
     where
     Data : MutableCollection,
     Data : RandomAccessCollection,
@@ -192,10 +193,11 @@ where Indices == [Index]
         self.selection = .single(value: selection)
     }
     
-    init<Data, ElementContent>(_ data: Binding<Data>,
-                               accessory: ScrollAccessory = .automatic,
-                               selection: Binding<Set<SelectionValue>>?,
-                               @ViewBuilder content: @escaping (Binding<Data.Element>) -> ElementContent)
+    init<Data, ElementContent>(
+        _ data: Binding<Data>,
+        accessory: ScrollAccessory = .automatic,
+        selection: Binding<Set<SelectionValue>>?,
+        @ViewBuilder content: @escaping (Binding<Data.Element>) -> ElementContent)
     where
     Data : MutableCollection,
     Data : RandomAccessCollection,
@@ -232,10 +234,11 @@ public extension IndexedList
 where SelectionValue == Never,
       Indices == [Index]
 {
-    init<Data, ID, ElementContent>(_ data: Data,
-                                   id: KeyPath<Data.Element, ID>,
-                                   accessory: ScrollAccessory = .automatic,
-                                   @ViewBuilder content: @escaping (Data.Element) -> ElementContent)
+    init<Data, ID, ElementContent>(
+        _ data: Data,
+        id: KeyPath<Data.Element, ID>,
+        accessory: ScrollAccessory = .automatic,
+        @ViewBuilder content: @escaping (Data.Element) -> ElementContent)
     where
     Data : RandomAccessCollection,
     Data.Element : Indexable,
@@ -249,9 +252,10 @@ where SelectionValue == Never,
         self.selection = .none
     }
     
-    init<Data, ElementContent>(_ data: Data,
-                               accessory: ScrollAccessory = .automatic,
-                               @ViewBuilder content: @escaping (Data.Element) -> ElementContent)
+    init<Data, ElementContent>(
+        _ data: Data,
+        accessory: ScrollAccessory = .automatic,
+        @ViewBuilder content: @escaping (Data.Element) -> ElementContent)
     where
     Data : RandomAccessCollection,
     Data.Element : Identifiable,
@@ -265,10 +269,11 @@ where SelectionValue == Never,
         self.selection = .none
     }
     
-    init<Data, ID, ElementContent>(_ data: Binding<Data>,
-                                   id: KeyPath<Data.Element, ID>,
-                                   accessory: ScrollAccessory = .automatic,
-                                   @ViewBuilder content: @escaping (Binding<Data.Element>) -> ElementContent)
+    init<Data, ID, ElementContent>(
+        _ data: Binding<Data>,
+        id: KeyPath<Data.Element, ID>,
+        accessory: ScrollAccessory = .automatic,
+        @ViewBuilder content: @escaping (Binding<Data.Element>) -> ElementContent)
     where
     Data : MutableCollection,
     Data : RandomAccessCollection,
@@ -284,9 +289,10 @@ where SelectionValue == Never,
         self.selection = .none
     }
     
-    init<Data, ElementContent>(_ data: Binding<Data>,
-                               accessory: ScrollAccessory = .automatic,
-                               @ViewBuilder content: @escaping (Binding<Data.Element>) -> ElementContent)
+    init<Data, ElementContent>(
+        _ data: Binding<Data>,
+        accessory: ScrollAccessory = .automatic,
+        @ViewBuilder content: @escaping (Binding<Data.Element>) -> ElementContent)
     where
     Data : MutableCollection,
     Data : RandomAccessCollection,
@@ -300,14 +306,5 @@ where SelectionValue == Never,
         self.content = { ForEach(data, content: content) }
         self.indices = data.wrappedValue.compactMap(\.index)
         self.selection = .none
-    }
-}
-
-
-private extension IndexedList {
-    enum Selection {
-        case none
-        case single(value: Binding<SelectionValue?>?)
-        case multiple(value: Binding<Set<SelectionValue>>?)
     }
 }

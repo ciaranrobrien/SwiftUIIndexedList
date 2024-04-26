@@ -1,6 +1,6 @@
 /**
 *  SwiftUIIndexedList
-*  Copyright (c) Ciaran O'Brien 2022
+*  Copyright (c) Ciaran O'Brien 2024
 *  MIT license, see LICENSE file for details
 */
 
@@ -18,10 +18,12 @@ where Indices : Equatable,
     var body: some View {
         GeometryReader { geometry in
             if accessory.showsIndexBar(indices: indices) {
-                IndexReducer(frameHeight: geometry.size.height,
-                             indices: indices,
-                             scrollView: scrollView)
-                    .transition(.identity)
+                IndexReducer(
+                    frameHeight: geometry.size.height,
+                    indices: indices,
+                    scrollView: scrollView
+                )
+                .transition(.identity)
             }
         }
     }
@@ -43,10 +45,12 @@ where Indices : Equatable,
     var scrollView: ScrollViewProxy
     
     var body: some View {
-        IndexLayout(frameHeight: frameHeight,
-                    indices: indices,
-                    reducedIndices: reducedIndices,
-                    scrollView: scrollView)
+        IndexLayout(
+            frameHeight: frameHeight,
+            indices: indices,
+            reducedIndices: reducedIndices,
+            scrollView: scrollView
+        )
     }
     
     private var reducedIndices: [Index] {
@@ -220,15 +224,15 @@ private let selectionFeedbackGenerator = UISelectionFeedbackGenerator()
 
 private var labelSize: CGSize {
     switch UIDevice.current.userInterfaceIdiom {
-    case .phone: return CGSize(width: 15, height: 14)
-    case .pad: return CGSize(width: 30, height: 24)
+    case .phone: CGSize(width: 15, height: 14)
+    case .pad, .mac: CGSize(width: 30, height: 24)
     default: fatalError("Unsupported UserInterfaceIdiom \(UIDevice.current.userInterfaceIdiom).")
     }
 }
 private var stackPadding: CGFloat {
     switch UIDevice.current.userInterfaceIdiom {
-    case .phone: return 3
-    case .pad: return 6
+    case .phone: 3
+    case .pad, .mac: 6
     default: fatalError("Unsupported UserInterfaceIdiom \(UIDevice.current.userInterfaceIdiom).")
     }
 }
