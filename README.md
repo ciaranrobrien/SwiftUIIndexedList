@@ -2,6 +2,9 @@
 
 Add an index bar to a SwiftUI `List` or `ScrollView`.
 
+> [!WARNING]
+> This package is no longer maintained. Use [sectionIndexLabel](https://developer.apple.com/documentation/swiftui/view/sectionindexlabel(_:)) and [listSectionIndexVisibility](https://developer.apple.com/documentation/swiftui/view/listsectionindexvisibility(_:)) instead.
+
 <img src="Preview.png" width="256" max-width="90%" alt="Preview" />
 
 ## Getting Started
@@ -85,7 +88,3 @@ Construct the `indices` and the scroll view's `content` manually, or provide `da
 ## Dependencies
 
 * [SwiftUI Introspect](https://github.com/siteline/swiftui-introspect)
-
-## Contact
-
-[@ciaranrobrien](https://twitter.com/ciaranrobrien) on Twitter.
